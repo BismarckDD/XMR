@@ -1,0 +1,25 @@
+﻿  jpsock.cpp
+d:\xmr\xmr\socks.h(36): warning C4267: 'argument': conversion from 'size_t' to 'DWORD', possible loss of data
+d:\xmr\xmr\socks.h(49): warning C4267: 'argument': conversion from 'size_t' to 'DWORD', possible loss of data
+jpsock.cpp(226): warning C4267: 'argument': conversion from 'size_t' to 'unsigned int', possible loss of data
+jpsock.cpp(243): warning C4244: 'initializing': conversion from '__int64' to 'int', possible loss of data
+MSVCRT.lib(initializers.obj) : warning LNK4098: defaultlib 'libcmt.lib' conflicts with use of other libs; use /NODEFAULTLIB:library
+  Generating code
+  20 of 1895 functions ( 1.1%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    10 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+libmicrohttpd.lib(response.obj) : warning LNK4099: PDB 'libmicrohttpd.pdb' was not found with 'libmicrohttpd.lib(response.obj)' or at 'D:\XMR\x64\Release\libmicrohttpd.pdb'; linking object as if no debug info
+libmicrohttpd.lib(connection.obj) : warning LNK4099: PDB 'libmicrohttpd.pdb' was not found with 'libmicrohttpd.lib(connection.obj)' or at 'D:\XMR\x64\Release\libmicrohttpd.pdb'; linking object as if no debug info
+libmicrohttpd.lib(daemon.obj) : warning LNK4099: PDB 'libmicrohttpd.pdb' was not found with 'libmicrohttpd.lib(daemon.obj)' or at 'D:\XMR\x64\Release\libmicrohttpd.pdb'; linking object as if no debug info
+libmicrohttpd.lib(mhd_str.obj) : warning LNK4099: PDB 'libmicrohttpd.pdb' was not found with 'libmicrohttpd.lib(mhd_str.obj)' or at 'D:\XMR\x64\Release\libmicrohttpd.pdb'; linking object as if no debug info
+libmicrohttpd.lib(internal.obj) : warning LNK4099: PDB 'libmicrohttpd.pdb' was not found with 'libmicrohttpd.lib(internal.obj)' or at 'D:\XMR\x64\Release\libmicrohttpd.pdb'; linking object as if no debug info
+libmicrohttpd.lib(reason_phrase.obj) : warning LNK4099: PDB 'libmicrohttpd.pdb' was not found with 'libmicrohttpd.lib(reason_phrase.obj)' or at 'D:\XMR\x64\Release\libmicrohttpd.pdb'; linking object as if no debug info
+libmicrohttpd.lib(memorypool.obj) : warning LNK4099: PDB 'libmicrohttpd.pdb' was not found with 'libmicrohttpd.lib(memorypool.obj)' or at 'D:\XMR\x64\Release\libmicrohttpd.pdb'; linking object as if no debug info
+libmicrohttpd.lib(mhd_mono_clock.obj) : warning LNK4099: PDB 'libmicrohttpd.pdb' was not found with 'libmicrohttpd.lib(mhd_mono_clock.obj)' or at 'D:\XMR\x64\Release\libmicrohttpd.pdb'; linking object as if no debug info
+libmicrohttpd.lib(mhd_sockets.obj) : warning LNK4099: PDB 'libmicrohttpd.pdb' was not found with 'libmicrohttpd.lib(mhd_sockets.obj)' or at 'D:\XMR\x64\Release\libmicrohttpd.pdb'; linking object as if no debug info
+libmicrohttpd.lib(tsearch.obj) : warning LNK4099: PDB 'libmicrohttpd.pdb' was not found with 'libmicrohttpd.lib(tsearch.obj)' or at 'D:\XMR\x64\Release\libmicrohttpd.pdb'; linking object as if no debug info
+libmicrohttpd.lib(sysfdsetsize.obj) : warning LNK4099: PDB 'libmicrohttpd.pdb' was not found with 'libmicrohttpd.lib(sysfdsetsize.obj)' or at 'D:\XMR\x64\Release\libmicrohttpd.pdb'; linking object as if no debug info
+libmicrohttpd.lib(mhd_threads.obj) : warning LNK4099: PDB 'libmicrohttpd.pdb' was not found with 'libmicrohttpd.lib(mhd_threads.obj)' or at 'D:\XMR\x64\Release\libmicrohttpd.pdb'; linking object as if no debug info
+  XMR.vcxproj -> D:\XMR\x64\Release\XMR.exe
+  XMR.vcxproj -> D:\XMR\x64\Release\XMR.pdb (Full PDB)

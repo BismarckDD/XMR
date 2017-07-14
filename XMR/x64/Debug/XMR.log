@@ -1,0 +1,33 @@
+﻿  webdesign.cpp
+  minethd.cpp
+d:\xmr\xmr\minethd.h(111): warning C4244: 'return': conversion from 'uint64_t' to 'uint32_t', possible loss of data
+d:\xmr\xmr\minethd.h(115): warning C4244: 'return': conversion from 'uint64_t' to 'uint32_t', possible loss of data
+d:\xmr\xmr\minethd.cpp(127): warning C4244: '=': conversion from 'uint64_t' to 'double', possible loss of data
+d:\xmr\xmr\minethd.cpp(128): warning C4244: '=': conversion from 'uint64_t' to 'double', possible loss of data
+d:\xmr\xmr\crypto\cryptonight_aesni.h(294): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+  d:\xmr\xmr\minethd.cpp(353): note: see reference to function template instantiation 'void cryptonight_hash<524288,2097152,false,false>(const void *,std::size_t,void *,cryptonight_ctx *)' being compiled
+d:\xmr\xmr\crypto\cryptonight_aesni.h(359): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+  d:\xmr\xmr\minethd.cpp(440): note: see reference to function template instantiation 'void cryptonight_double_hash<524288,2097152,false,false>(const void *,std::size_t,void *,cryptonight_ctx *__restrict ,cryptonight_ctx *__restrict )' being compiled
+d:\xmr\xmr\crypto\cryptonight_aesni.h(360): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+  main.cpp
+d:\xmr\xmr\minethd.h(111): warning C4244: 'return': conversion from 'uint64_t' to 'uint32_t', possible loss of data
+d:\xmr\xmr\minethd.h(115): warning C4244: 'return': conversion from 'uint64_t' to 'uint32_t', possible loss of data
+d:\xmr\xmr\main.cpp(197): warning C4244: 'initializing': conversion from 'unsigned __int64' to 'double', possible loss of data
+  jpsock.cpp
+d:\xmr\xmr\socks.h(36): warning C4267: 'argument': conversion from 'size_t' to 'DWORD', possible loss of data
+d:\xmr\xmr\socks.h(49): warning C4267: 'argument': conversion from 'size_t' to 'DWORD', possible loss of data
+d:\xmr\xmr\jpsock.cpp(226): warning C4267: 'argument': conversion from 'size_t' to 'unsigned int', possible loss of data
+d:\xmr\xmr\jpsock.cpp(244): warning C4244: 'initializing': conversion from '__int64' to 'int', possible loss of data
+  jconf.cpp
+d:\xmr\xmr\jconf.cpp(122): warning C4267: 'argument': conversion from 'size_t' to 'rapidjson::SizeType', possible loss of data
+d:\xmr\xmr\jconf.cpp(297): error C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(205): note: see declaration of 'fopen'
+  httpd.cpp
+  executor.cpp
+d:\xmr\xmr\minethd.h(111): warning C4244: 'return': conversion from 'uint64_t' to 'uint32_t', possible loss of data
+d:\xmr\xmr\minethd.h(115): warning C4244: 'return': conversion from 'uint64_t' to 'uint32_t', possible loss of data
+  cryptonight_common.cpp
+  console.cpp
+d:\xmr\xmr\console.cpp(163): error C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(205): note: see declaration of 'fopen'
+  Generating Code...

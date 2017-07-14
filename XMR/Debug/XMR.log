@@ -1,0 +1,34 @@
+﻿  webdesign.cpp
+  minethd.cpp
+d:\xmr\xmr\minethd.h(111): warning C4244: 'return': conversion from 'uint64_t' to 'uint32_t', possible loss of data
+d:\xmr\xmr\minethd.h(115): warning C4244: 'return': conversion from 'uint64_t' to 'uint32_t', possible loss of data
+d:\xmr\xmr\crypto\cryptonight_aesni.h(36): fatal error C1189: #error:  You are trying to do a 32-bit build. This will all end in tears. I know it.
+  main.cpp
+d:\xmr\xmr\minethd.h(111): warning C4244: 'return': conversion from 'uint64_t' to 'uint32_t', possible loss of data
+d:\xmr\xmr\minethd.h(115): warning C4244: 'return': conversion from 'uint64_t' to 'uint32_t', possible loss of data
+d:\xmr\xmr\main.cpp(197): warning C4244: 'initializing': conversion from 'unsigned __int64' to 'double', possible loss of data
+  jpsock.cpp
+d:\xmr\xmr\jpsock.cpp(33): fatal error C1083: Cannot open include file: 'socks.h': No such file or directory
+  jconf.cpp
+d:\xmr\xmr\jconf.cpp(448): warning C4244: 'argument': conversion from 'uint64_t' to 'std::size_t', possible loss of data
+d:\xmr\xmr\jconf.cpp(297): error C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(205): note: see declaration of 'fopen'
+  httpd.cpp
+  executor.cpp
+d:\xmr\xmr\minethd.h(111): warning C4244: 'return': conversion from 'uint64_t' to 'uint32_t', possible loss of data
+d:\xmr\xmr\minethd.h(115): warning C4244: 'return': conversion from 'uint64_t' to 'uint32_t', possible loss of data
+d:\xmr\xmr\executor.cpp(109): warning C4244: 'initializing': conversion from 'uint64_t' to 'std::size_t', possible loss of data
+d:\xmr\xmr\executor.cpp(123): warning C4244: 'argument': conversion from 'unsigned __int64' to 'std::size_t', possible loss of data
+d:\xmr\xmr\executor.cpp(152): warning C4244: '+=': conversion from 'uint64_t' to 'std::size_t', possible loss of data
+d:\xmr\xmr\executor.cpp(157): warning C4244: '=': conversion from 'uint64_t' to 'std::size_t', possible loss of data
+d:\xmr\xmr\executor.cpp(246): warning C4244: 'argument': conversion from 'uint64_t' to 'std::size_t', possible loss of data
+d:\xmr\xmr\executor.cpp(272): warning C4244: 'initializing': conversion from '__int64' to 'std::size_t', possible loss of data
+d:\xmr\xmr\executor.cpp(274): warning C4244: 'initializing': conversion from '__int64' to 'std::size_t', possible loss of data
+d:\xmr\xmr\executor.cpp(389): warning C4244: 'argument': conversion from 'uint64_t' to 'std::size_t', possible loss of data
+d:\xmr\xmr\executor.cpp(469): warning C4244: 'argument': conversion from 'uint64_t' to 'std::size_t', possible loss of data
+  cryptonight_common.cpp
+d:\xmr\xmr\crypto\cryptonight_aesni.h(36): fatal error C1189: #error:  You are trying to do a 32-bit build. This will all end in tears. I know it.
+  console.cpp
+d:\xmr\xmr\console.cpp(163): error C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(205): note: see declaration of 'fopen'
+  Generating Code...
