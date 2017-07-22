@@ -4,21 +4,21 @@
 #include "crypto/cryptonight.h"
 
 /* measurement from the remote. */
-class telemetry
+class Telemetry
 {
 public:
-    telemetry(size_t iThd);
-    ~telemetry();
-    void push_perf_value(size_t iThd, uint64_t m_iHashCount, uint64_t m_iTimestamp);
+    Telemetry(size_t p_iThread);
+    ~Telemetry();
+    void push_perf_value(size_t p_iThread, uint64_t p_iHashCount, uint64_t p_iTimestamp);
     double calc_telemetry_data(size_t iLastMilisec, size_t iThread);
 
 private:
-    size_t m_iThd;
-    constexpr static size_t iBucketSize = 2048; // (1 << 12) Power of 2 to simplify calculations
-    constexpr static size_t iBucketMask = iBucketSize - 1;
-    uint32_t* iBucketTop;
-    uint64_t** ppHashCounts;
-    uint64_t** ppTimestamps;
+    size_t m_iThread;
+    constexpr static size_t s_iBucketSize = 2048; // (1 << 12) Power of 2 to simplify calculations
+    constexpr static size_t s_iBucketMask = s_iBucketSize - 1;
+    uint32_t* m_piBucketTop;
+    uint64_t** m_ppHashCounts;
+    uint64_t** m_ppTimeStamps;
 };
 
 class MineThread
@@ -111,12 +111,12 @@ private:
     // We use the top 10 bits of the nonce for thread and resume ( 2**10 = 1023, 512 / 128 == 4 )
     // This allows us to resume up to 128 threads 4 times before we get nonce collisions
     // Bottom 22 bits allow for an hour of work at 1000 H/s
-    inline uint32_t calc_start_nonce(uint32_t resume)
-        { return (resume * s_iThreadCount + m_iThreadNo) << 22; }
+    inline uint32_t calc_start_nonce(uint32_t p_resume)
+        { return (uint32_t)((p_resume * s_iThreadCount + m_iThreadNo) << 22); }
 
     // Limited version of the nonce calc above
-    inline uint32_t calc_nicehash_nonce(uint32_t start, uint32_t resume)
-        { return start | (resume * s_iThreadCount + m_iThreadNo) << 18; }
+    inline uint32_t calc_nicehash_nonce(uint32_t p_start, uint32_t p_resume)
+        { return (uint32_t)(p_start | (p_resume * s_iThreadCount + m_iThreadNo) << 18); }
 
     static cn_hash_fun func_selector(bool p_bHaveAes, bool p_bNoPrefetch);
     static cn_hash_fun_dbl func_dbl_selector(bool p_bHaveAes, bool p_bNoPrefetch);

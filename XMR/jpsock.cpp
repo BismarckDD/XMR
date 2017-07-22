@@ -34,6 +34,8 @@
 #include "socket.h"
 #pragma comment(lib,"ws2_32.lib")
 #define AGENTID_STR "xmr-stak-cpu/1.0.0"
+#define LOGIN_STR "{\"method\":\"login\",\"params\":{\"login\":\"%s\",\"pass\":\"%s\",\"agent\":\"" AGENTID_STR "\"},\"id\":1}\n"
+#define SUBMIT_STR "{\"method\":\"submit\",\"params\":{\"id\":\"%s\",\"job_id\":\"%s\",\"nonce\":\"%s\",\"result\":\"%s\"},\"id\":1}\n"
 
 using namespace rapidjson;
 
@@ -78,10 +80,10 @@ struct jpsock::OpaquePrivate
     call_rsp oCallRsp;
 
     OpaquePrivate(uint8_t* bCallMem, uint8_t* bRecvMem, uint8_t* bParseMem) :
-        callAllocator(bCallMem, jpsock::iJsonMemSize),
-        recvAllocator(bRecvMem, jpsock::iJsonMemSize),
-        parseAllocator(bParseMem, jpsock::iJsonMemSize),
-        jsonDoc(&recvAllocator, jpsock::iJsonMemSize, &parseAllocator),
+        callAllocator(bCallMem, jpsock::m_iJsonMemSize),
+        recvAllocator(bRecvMem, jpsock::m_iJsonMemSize),
+        parseAllocator(bParseMem, jpsock::m_iJsonMemSize),
+        jsonDoc(&recvAllocator, jpsock::m_iJsonMemSize, &parseAllocator),
         oCallRsp(nullptr)
     {
     }
@@ -97,11 +99,11 @@ jpsock::jpsock(size_t id, bool tls) : m_iPoolId(id)
 {
     sock_init();
 
-    bJsonCallMem = (uint8_t*)malloc(iJsonMemSize);
-    bJsonRecvMem = (uint8_t*)malloc(iJsonMemSize);
-    bJsonParseMem = (uint8_t*)malloc(iJsonMemSize);
+    m_bJsonCallMem = (uint8_t*)malloc(m_iJsonMemSize);
+    m_bJsonRecvMem = (uint8_t*)malloc(m_iJsonMemSize);
+    m_bJsonParseMem = (uint8_t*)malloc(m_iJsonMemSize);
 
-    m_opq = new OpaquePrivate(bJsonCallMem, bJsonRecvMem, bJsonParseMem);
+    m_opq = new OpaquePrivate(m_bJsonCallMem, m_bJsonRecvMem, m_bJsonParseMem);
 
 #ifndef CONF_NO_TLS
     if(tls)
@@ -125,9 +127,9 @@ jpsock::~jpsock()
     delete m_opq;
     m_opq = nullptr;
 
-    free(bJsonCallMem);
-    free(bJsonRecvMem);
-    free(bJsonParseMem);
+    free(m_bJsonCallMem);
+    free(m_bJsonRecvMem);
+    free(m_bJsonParseMem);
 }
 
 std::string&& jpsock::get_call_error()
@@ -187,7 +189,7 @@ bool jpsock::set_socket_error_strerr(const char* a, int res)
 
 void jpsock::jpsock_thread()
 {
-    jpsock_thd_main();
+    jpsock_thread_main();
     Executor::inst()->push_event(ex_event(std::move(m_sSocketError), m_iPoolId));
 
     // If a call is wating, send an error to end it
@@ -212,19 +214,19 @@ void jpsock::jpsock_thread()
     memset(&m_poolJob, 0, sizeof(m_poolJob));
 }
 
-bool jpsock::jpsock_thd_main()
+bool jpsock::jpsock_thread_main()
 {
     if(!m_sock->connect())
         return false;
 
     Executor::inst()->push_event(ex_event(EV_SOCK_READY, m_iPoolId));
 
-    char buf[iSockBufferSize];
+    char buf[m_iSockBufferSize];
     size_t datalen = 0;
     while (true)
     {
         int ret = m_sock->recv(buf + datalen, sizeof(buf) - datalen);
-
+        // printer::inst()->print_msg(L0, "Line Info %s", buf);
         if(ret <= 0) return false;
 
         datalen += ret;
@@ -266,8 +268,8 @@ bool jpsock::process_line(char* line, size_t len)
 
     /*NULL terminate the line instead of '\n', parsing will add some more NULLs*/
     line[len-1] = '\0';
-    printer::inst()->print_msg(L0, "Line Info %s", line);
-    //printf("RECV: %s\n", line);
+    // printer::inst()->print_msg(L0, "Line Info %s", line);
+    // printf("RECV: %s\n", line);
 
     if (m_opq->jsonDoc.ParseInsitu(line).HasParseError())
         return set_socket_error("PARSE error: Invalid JSON");
@@ -414,7 +416,7 @@ bool jpsock::process_pool_job(const opq_json_val* params)
     return true;
 }
 
-bool jpsock::connect(const char* p_sAddr, std::string& sConnectError)
+bool jpsock::connect(const char* p_sAddr, std::string& p_sConnectError)
 {
     m_bHaveSocketError = false;
     m_sSocketError.clear();
@@ -427,7 +429,7 @@ bool jpsock::connect(const char* p_sAddr, std::string& sConnectError)
         return true;
     }
 
-    sConnectError = std::move(m_sSocketError);
+    p_sConnectError = std::move(m_sSocketError);
     return false;
 }
 
@@ -445,7 +447,7 @@ void jpsock::disconnect()
     m_sock->close(true);
 }
 
-bool jpsock::cmd_ret_wait(const char* sPacket, opq_json_val& poResult)
+bool jpsock::cmd_ret_wait(const char* p_sPacket, opq_json_val& p_oResult)
 {
     //printf("SEND: %s\n", sPacket);
 
@@ -457,7 +459,7 @@ bool jpsock::cmd_ret_wait(const char* sPacket, opq_json_val& poResult)
     m_opq->oCallRsp = call_rsp(&m_opq->oCallValue);
     mlock.unlock();
 
-    if(!m_sock->send(sPacket))
+    if(!m_sock->send(p_sPacket))
     {
         disconnect(); //This will join the other thread;
         return false;
@@ -485,17 +487,17 @@ bool jpsock::cmd_ret_wait(const char* sPacket, opq_json_val& poResult)
     }
 
     if(bSuccess)
-        poResult.val = &m_opq->oCallValue;
+        p_oResult.val = &m_opq->oCallValue;
 
     return bSuccess;
 }
 
-bool jpsock::cmd_login(const char* sLogin, const char* sPassword)
+bool jpsock::cmd_login(const char* p_sLogin, const char* p_sPassword)
 {
     char cmd_buffer[1024];
 
-    snprintf(cmd_buffer, sizeof(cmd_buffer), "{\"method\":\"login\",\"params\":{\"login\":\"%s\",\"pass\":\"%s\",\"agent\":\"" AGENTID_STR "\"},\"id\":1}\n",
-        sLogin, sPassword);
+    snprintf(cmd_buffer, sizeof(cmd_buffer), LOGIN_STR,
+        p_sLogin, p_sPassword);
 
     opq_json_val oResult(nullptr);
 
@@ -554,8 +556,7 @@ bool jpsock::cmd_submit(const char* p_sJobId, uint32_t p_iNonce, const uint8_t* 
     bin2hex(p_bResult, 32, sResult);
     sResult[64] = '\0';
 
-    snprintf(cmd_buffer, sizeof(cmd_buffer), "{\"method\":\"submit\",\"params\":{\"id\":\"%s\",\"job_id\":\"%s\",\"nonce\":\"%s\",\"result\":\"%s\"},\"id\":1}\n",
-        sMinerId, p_sJobId, sNonce, sResult);
+    snprintf(cmd_buffer, sizeof(cmd_buffer), SUBMIT_STR, sMinerId, p_sJobId, sNonce, sResult);
 
     opq_json_val oResult(nullptr);
     return cmd_ret_wait(cmd_buffer, oResult);
