@@ -194,7 +194,7 @@ void do_benchmark()
     double fTotalHps = 0.0;
     for (size_t i = 0; i < m_pvThreads->size(); ++i)
     {
-        double fHps = m_pvThreads->at(i)->m_iHashCount;
+        double fHps = (double)m_pvThreads->at(i)->m_iHashCount;
         fHps /= (m_pvThreads->at(i)->m_iTimestamp - iStartStamp) / 1000.0;
 
         printer::inst()->print_msg(L0, "Thread %u: %.1f H/S", i, fHps);

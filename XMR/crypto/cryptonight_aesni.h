@@ -306,7 +306,7 @@ void cryptonight_hash(const void* input, size_t len, void* output, cryptonight_c
     uint64_t idx0 = h0[0] ^ h0[4];
 
     // Optim - 90% time boundary
-    for(size_t i = 0; i < ITERATIONS; i++)
+    for(size_t i = 0; i < ITERATIONS; ++i)
     {
         __m128i cx;
         cx = _mm_load_si128((__m128i *)&l0[idx0 & 0x1FFFF0]);

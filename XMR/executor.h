@@ -8,18 +8,18 @@
 
 class jpsock;
 class MineThread;
-class telemetry;
+class Telemetry;
 
 class Executor
 {
 public:
     static Executor* inst()
     {
-        if (oInst == nullptr) oInst = new Executor;
-        return oInst;
+        if (m_oInst == nullptr) m_oInst = new Executor;
+        return m_oInst;
     };
 
-    void ex_start() { my_thd = new std::thread(&Executor::ex_main, this); }
+    void ex_start() { m_oThread = new std::thread(&Executor::ex_main, this); }
     void ex_main();
 
     void get_http_report(ex_event_name ev_id, std::string& data);
@@ -51,9 +51,9 @@ private:
     std::mutex timed_event_mutex;
     ThreadQueue<ex_event> oEventQ;
 
-    telemetry* telem;
+    Telemetry* telem;
     std::vector<MineThread*>* m_pvThreads;
-    std::thread* my_thd;
+    std::thread* m_oThread;
 
     size_t m_curPoolId;
 
@@ -65,7 +65,7 @@ private:
     bool is_dev_time;
 
     Executor();
-    static Executor* oInst;
+    static Executor* m_oInst;
 
     void ex_clock_thd();
     void pool_connect(jpsock* pool);

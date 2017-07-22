@@ -13,14 +13,14 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\crypto">
-      <UniqueIdentifier>{5175ffc2-04a0-4cc4-9c86-63e4ff4a48fd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\libmicrohttpd">
       <UniqueIdentifier>{4d4ba68e-695c-4f69-8b54-099008a6bfa6}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\rapidjson">
       <UniqueIdentifier>{98eaebc9-0ca1-43e6-a1c2-b068885caa45}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\crypto">
+      <UniqueIdentifier>{b0498d9c-e740-434a-b112-859e550a65db}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -37,6 +37,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="console.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jpsock.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="webdesign.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="socket.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MineThread.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="crypto\c_blake256.c">
@@ -60,18 +72,6 @@
     <ClCompile Include="crypto\soft_aes.c">
       <Filter>Header Files\crypto</Filter>
     </ClCompile>
-    <ClCompile Include="jpsock.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="webdesign.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="socket.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MineThread.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="executor.h">
@@ -91,39 +91,6 @@
     </ClInclude>
     <ClInclude Include="msgstruct.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="crypto\cryptonight.h">
-      <Filter>Header Files\crypto</Filter>
-    </ClInclude>
-    <ClInclude Include="crypto\c_blake256.h">
-      <Filter>Header Files\crypto</Filter>
-    </ClInclude>
-    <ClInclude Include="crypto\c_groestl.h">
-      <Filter>Header Files\crypto</Filter>
-    </ClInclude>
-    <ClInclude Include="crypto\c_jh.h">
-      <Filter>Header Files\crypto</Filter>
-    </ClInclude>
-    <ClInclude Include="crypto\c_keccak.h">
-      <Filter>Header Files\crypto</Filter>
-    </ClInclude>
-    <ClInclude Include="crypto\c_skein.h">
-      <Filter>Header Files\crypto</Filter>
-    </ClInclude>
-    <ClInclude Include="crypto\cryptonight_aesni.h">
-      <Filter>Header Files\crypto</Filter>
-    </ClInclude>
-    <ClInclude Include="crypto\groestl_tables.h">
-      <Filter>Header Files\crypto</Filter>
-    </ClInclude>
-    <ClInclude Include="crypto\hash.h">
-      <Filter>Header Files\crypto</Filter>
-    </ClInclude>
-    <ClInclude Include="crypto\int-util.h">
-      <Filter>Header Files\crypto</Filter>
-    </ClInclude>
-    <ClInclude Include="crypto\skein_port.h">
-      <Filter>Header Files\crypto</Filter>
     </ClInclude>
     <ClInclude Include="libmicrohttpd\microhttpd.h">
       <Filter>Header Files\libmicrohttpd</Filter>
@@ -205,6 +172,39 @@
     </ClInclude>
     <ClInclude Include="ThreadQueue.hpp">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="crypto\c_blake256.h">
+      <Filter>Header Files\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="crypto\c_groestl.h">
+      <Filter>Header Files\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="crypto\c_jh.h">
+      <Filter>Header Files\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="crypto\c_keccak.h">
+      <Filter>Header Files\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="crypto\c_skein.h">
+      <Filter>Header Files\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="crypto\cryptonight.h">
+      <Filter>Header Files\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="crypto\cryptonight_aesni.h">
+      <Filter>Header Files\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="crypto\groestl_tables.h">
+      <Filter>Header Files\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="crypto\hash.h">
+      <Filter>Header Files\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="crypto\int-util.h">
+      <Filter>Header Files\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="crypto\skein_port.h">
+      <Filter>Header Files\crypto</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

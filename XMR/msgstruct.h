@@ -18,7 +18,7 @@ struct PoolJob
     PoolJob(const char* p_sJobID, uint64_t p_iTarget, const uint8_t* p_bWorkBlob, uint32_t p_iWorkLen) :
         m_iTarget(p_iTarget), m_iWorkLen(p_iWorkLen), m_iResumeCnt(0)
     {
-        assert(iWorkLen <= sizeof(PoolJob::m_bWorkBlob));
+        assert(m_iWorkLen <= sizeof(PoolJob::m_bWorkBlob));
         memcpy(m_sJobID, p_sJobID, sizeof(PoolJob::m_sJobID));
         memcpy(m_bWorkBlob, p_bWorkBlob, m_iWorkLen);
     }

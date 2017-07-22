@@ -39,16 +39,16 @@
 #define strncasecmp _strnicmp
 #endif // _WIN32
 
-Executor* Executor::oInst = NULL;
+Executor* Executor::m_oInst = NULL;
 
 Executor::Executor()
 {
-    my_thd = nullptr;
+    m_oThread = nullptr;
 }
 
 void Executor::push_timed_event(ex_event&& ev, size_t sec)
 {
-    std::unique_lock<std::mutex> lck(timed_event_mutex);
+    std::unique_lock<std::mutex> lock(timed_event_mutex);
     lTimedEvents.emplace_back(std::move(ev), sec_to_ticks(sec));
 }
 
@@ -72,11 +72,11 @@ void Executor::ex_clock_thd()
         push_event(ex_event(EV_PERF_TICK));
 
         // Service timed events
-        std::unique_lock<std::mutex> lck(timed_event_mutex);
+        std::unique_lock<std::mutex> lock(timed_event_mutex);
         std::list<timed_event>::iterator ev = lTimedEvents.begin();
         while (ev != lTimedEvents.end())
         {
-            ev->ticks_left--;
+            --ev->ticks_left;
             if(ev->ticks_left == 0)
             {
                 push_event(std::move(ev->event));
@@ -85,7 +85,7 @@ void Executor::ex_clock_thd()
             else
                 ev++;
         }
-        lck.unlock();
+        lock.unlock();
 
         if(iDevPortion == 0)
             continue;
@@ -159,21 +159,21 @@ void Executor::log_result_ok(uint64_t iActualDiff)
     vMineResults[0].increment();
 }
 
-jpsock* Executor::pick_pool_by_id(size_t m_iPoolId)
+jpsock* Executor::pick_pool_by_id(size_t p_poolId)
 {
-    assert(m_iPoolId != c_invPoolId);
+    assert(p_poolId != c_invPoolId);
 
-    if(m_iPoolId == c_devPoolId)
+    if(p_poolId == c_devPoolId)
         return m_oDevPool;
     else
         return m_oUsrPool;
 }
 
-void Executor::on_sock_ready(size_t m_iPoolId)
+void Executor::on_sock_ready(size_t p_poolId)
 {
-    jpsock* pool = pick_pool_by_id(m_iPoolId);
+    jpsock* pool = pick_pool_by_id(p_poolId);
 
-    if(m_iPoolId == c_devPoolId)
+    if(p_poolId == c_devPoolId)
     {
         if(!pool->cmd_login("", ""))
             pool->disconnect();
@@ -218,14 +218,14 @@ void Executor::on_sock_error(size_t p_poolId, std::string&& sError)
     sched_reconnect();
 }
 
-void Executor::on_pool_have_job(size_t p_poolId, PoolJob& oPoolJob)
+void Executor::on_pool_have_job(size_t p_poolId, PoolJob& p_oPoolJob)
 {
     if(p_poolId != m_curPoolId) return;
 
     jpsock* pool = pick_pool_by_id(p_poolId);
 
-    MineThread::MinerWork m_oMinerWork(oPoolJob.m_sJobID, oPoolJob.m_bWorkBlob,
-        oPoolJob.m_iWorkLen, oPoolJob.m_iResumeCnt, oPoolJob.m_iTarget,
+    MineThread::MinerWork m_oMinerWork(p_oPoolJob.m_sJobID, p_oPoolJob.m_bWorkBlob,
+        p_oPoolJob.m_iWorkLen, p_oPoolJob.m_iResumeCnt, p_oPoolJob.m_iTarget,
         p_poolId != c_devPoolId && jconf::inst()->NiceHashMode(),
         p_poolId);
 
@@ -354,7 +354,7 @@ void Executor::ex_main()
 
     MineThread::MinerWork m_oMinerWork = MineThread::MinerWork();
     m_pvThreads = MineThread::thread_starter(m_oMinerWork);
-    telem = new telemetry(m_pvThreads->size());
+    telem = new Telemetry(m_pvThreads->size());
 
     m_curPoolId = c_usrPoolId;
     m_oUsrPool = new jpsock(c_usrPoolId, jconf::inst()->GetTlsSetting());
@@ -374,7 +374,7 @@ void Executor::ex_main()
     if(jconf::inst()->GetVerboseLevel() >= 4)
         push_timed_event(ex_event(EV_HASHRATE_LOOP), jconf::inst()->GetAutohashTime());
 
-    size_t cnt = 0, i;
+    size_t iCount = 0, i;
     while (true)
     {
         ev = oEventQ.pop();
@@ -413,7 +413,7 @@ void Executor::ex_main()
                 telem->push_perf_value(i, m_pvThreads->at(i)->m_iHashCount.load(std::memory_order_relaxed),
                 m_pvThreads->at(i)->m_iTimestamp.load(std::memory_order_relaxed));
 
-            if((cnt++ & 0xF) == 0) //Every 16 ticks
+            if((++iCount & 0xFF) == 0) //Every 16 ticks
             {
                 double fHps = 0.0;
                 double fTelem;

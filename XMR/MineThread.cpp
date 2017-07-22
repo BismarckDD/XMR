@@ -65,91 +65,92 @@ void thd_setaffinity(std::thread::native_handle_type h, uint64_t cpu_id)
 #include "jconf.h"
 #include "crypto/cryptonight_aesni.h"
 
-telemetry::telemetry(size_t iThd) :m_iThd(iThd)
+Telemetry::Telemetry(size_t p_iThread) :m_iThread(p_iThread)
 {
-    ppHashCounts = new uint64_t*[iThd];
-    ppTimestamps = new uint64_t*[iThd];
-    iBucketTop = new uint32_t[iThd];
+    m_ppHashCounts = new uint64_t*[m_iThread];
+    m_ppTimeStamps = new uint64_t*[m_iThread];
+    m_piBucketTop = new uint32_t[m_iThread];
 
-    for (size_t i = 0; i < iThd; ++i)
+    for (size_t i = 0; i < m_iThread; ++i)
     {
-        ppHashCounts[i] = new uint64_t[iBucketSize];
-        ppTimestamps[i] = new uint64_t[iBucketSize];
-        iBucketTop[i] = 0;
-        memset(ppHashCounts[0], 0, sizeof(uint64_t) * iBucketSize);
-        memset(ppTimestamps[0], 0, sizeof(uint64_t) * iBucketSize);
+        m_ppHashCounts[i] = new uint64_t[s_iBucketSize];
+        m_ppTimeStamps[i] = new uint64_t[s_iBucketSize];
+        m_piBucketTop[i] = 0;
+        memset(m_ppHashCounts[0], 0, sizeof(uint64_t) * s_iBucketSize);
+        memset(m_ppTimeStamps[0], 0, sizeof(uint64_t) * s_iBucketSize);
     }
 }
 
-telemetry::~telemetry()
+Telemetry::~Telemetry()
 {
-    for (size_t i = 0; i < m_iThd; ++i)
+    for (size_t i = 0; i < m_iThread; ++i)
     {
-        if (ppHashCounts[i]) delete[] ppHashCounts[i];
-        if (ppTimestamps[i]) delete[] ppTimestamps[i];
-        // iBucketTop[i] = 0;
+        if (m_ppHashCounts[i]) delete[] m_ppHashCounts[i];
+        if (m_ppTimeStamps[i]) delete[] m_ppTimeStamps[i];
+        // m_piBucketTop[i] = 0;
     }
-    if (ppHashCounts) delete[] ppHashCounts;
-    if (ppTimestamps) delete[] ppTimestamps;
-    if (iBucketTop) delete[] iBucketTop;
+    if (m_ppHashCounts) delete[] m_ppHashCounts;
+    if (m_ppTimeStamps) delete[] m_ppTimeStamps;
+    if (m_piBucketTop) delete[] m_piBucketTop;
 }
 
-double telemetry::calc_telemetry_data(size_t iLastMilisec, size_t iThread)
+double Telemetry::calc_telemetry_data(size_t iLastMilisec, size_t iThread)
 {
     using namespace std::chrono;
     uint64_t iTimeNow = time_point_cast<milliseconds>(high_resolution_clock::now()).time_since_epoch().count();
 
-    uint64_t iEarliestHashCnt = 0;
-    uint64_t iEarliestStamp = 0;
-    uint64_t iLastestStamp = 0;
-    uint64_t iLastestHashCnt = 0;
+    
+    uint64_t iEarliestTimeStamp = 0;
+    uint64_t iLastestTimeStamp = 0;
+    uint64_t iEarliestHashCount = 0;
+    uint64_t iLastestHashCount = 0;
     bool bHaveFullSet = false;
 
     //Start at 1, BucketTop points to next empty
-    for (size_t i = 1; i < iBucketSize; ++i)
+    for (size_t i = 1; i < s_iBucketSize; ++i)
     {
-        size_t idx = (iBucketTop[iThread] - i) & iBucketMask; //overflow expected here
+        size_t idx = (m_piBucketTop[iThread] - i) & s_iBucketMask; //overflow expected here
 
-        if (ppTimestamps[iThread][idx] == 0)
+        if (m_ppTimeStamps[iThread][idx] == 0)
             break; //That means we don't have the data yet
 
-        if (iLastestStamp == 0)
+        if (iLastestTimeStamp == 0)
         {
-            iLastestStamp = ppTimestamps[iThread][idx];
-            iLastestHashCnt = ppHashCounts[iThread][idx];
+            iLastestTimeStamp = m_ppTimeStamps[iThread][idx];
+            iLastestHashCount = m_ppHashCounts[iThread][idx];
         }
 
-        if (iTimeNow - ppTimestamps[iThread][idx] > iLastMilisec)
+        if (iTimeNow - m_ppTimeStamps[iThread][idx] > iLastMilisec)
         {
             bHaveFullSet = true;
             break; //We are out of the requested time period
         }
 
-        iEarliestStamp = ppTimestamps[iThread][idx];
-        iEarliestHashCnt = ppHashCounts[iThread][idx];
+        iEarliestTimeStamp = m_ppTimeStamps[iThread][idx];
+        iEarliestHashCount = m_ppHashCounts[iThread][idx];
     }
 
-    if (!bHaveFullSet || iEarliestStamp == 0 || iLastestStamp == 0)
+    if (!bHaveFullSet || iEarliestTimeStamp == 0 || iLastestTimeStamp == 0)
         return nan("");
 
     //Don't think that can happen, but just in case
-    if (iLastestStamp - iEarliestStamp == 0)
+    if (iLastestTimeStamp - iEarliestTimeStamp == 0)
         return nan("");
 
     double fHashes, fTime;
-    fHashes = iLastestHashCnt - iEarliestHashCnt;
-    fTime = iLastestStamp - iEarliestStamp;
+    fHashes = (double)(iLastestHashCount - iEarliestHashCount);
+    fTime = (double)(iLastestTimeStamp - iEarliestTimeStamp);
     fTime /= 1000.0;
 
     return fHashes / fTime;
 }
 
-void telemetry::push_perf_value(size_t iThd, uint64_t m_iHashCount, uint64_t m_iTimestamp)
+void Telemetry::push_perf_value(size_t p_iThread, uint64_t p_iHashCount, uint64_t p_iTimestamp)
 {
-    size_t iTop = iBucketTop[iThd];
-    ppHashCounts[iThd][iTop] = m_iHashCount;
-    ppTimestamps[iThd][iTop] = m_iTimestamp;
-    iBucketTop[iThd] = (iTop + 1) & iBucketMask;
+    size_t iTop = m_piBucketTop[p_iThread];
+    m_ppHashCounts[p_iThread][iTop] = p_iHashCount;
+    m_ppTimeStamps[p_iThread][iTop] = p_iTimestamp;
+    m_piBucketTop[p_iThread] = (iTop + 1) & s_iBucketMask;
 }
 
 MineThread::MineThread(MinerWork& p_rMinerWork, size_t p_iThreadNo, bool p_bDoubleWork, bool p_bNoPrefetch)
@@ -333,19 +334,23 @@ void MineThread::switch_work(MinerWork& pWork)
 {
     // s_iConsumeCnt is a basic lock-like polling mechanism just in case we happen to push work
     // faster than threads can consume them. This should never happen in real life.
-    // Pool cant physically send jobs faster than every 250ms or so due to net latency.
-
+    // Pool can't physically send jobs faster than every 250ms or so due to net latency.
+    // Notice: when switch to a new job, all current jobs should be done.
     while (s_iConsumeCnt.load(std::memory_order_seq_cst) < s_iThreadCount)
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
+ 
     s_oGlobalMinerWork = pWork;
-    s_iConsumeCnt.store(0, std::memory_order_seq_cst); // why 0 here?
+    s_iConsumeCnt.store(0, std::memory_order_seq_cst); // wait until all works consumed. here set to 0.
+    // printer::inst()->print_msg(L3, "s_iGlobalJobNo changed");
     s_iGlobalJobNo++;
 }
 
 void MineThread::consume_work()
 {
+    // Actually, consume_work is not only finish the current work,
+    // but also prepare for the next work.
     memcpy(&m_oMinerWork, &s_oGlobalMinerWork, sizeof(MinerWork));
+    // printer::inst()->print_msg(L3, "Thread %u, m_iJobNo %u changed", this->m_iThreadNo, m_iJobNo);
     m_iJobNo++;
     s_iConsumeCnt++;
 }
@@ -375,16 +380,17 @@ void MineThread::work_main()
 {
     cn_hash_fun hash_fun;
     cryptonight_ctx* ctx;
-    uint64_t iCount = 0;
-    uint64_t* piHashVal;
+    uint64_t iCount = 0, iStamp;
+    uint64_t* piHash;
     uint32_t* piNonce;
     JobResult result;
 
     hash_fun = func_selector(jconf::inst()->HaveHardwareAes(), m_bNoPrefetch);
     ctx = minethd_alloc_ctx();
 
-    piHashVal = (uint64_t*)(result.m_bResult + 24);
+    piHash = (uint64_t*)(result.m_bResult + 24);
     piNonce = (uint32_t*)(m_oMinerWork.m_bWorkBlob + 39);
+    uint32_t stNonce;
     s_iConsumeCnt++;
 
     while (m_bQuit == 0)
@@ -392,45 +398,44 @@ void MineThread::work_main()
         if (m_oMinerWork.m_bStall)
         {
             /*  We are stalled here because the Executor didn't find a job for us yet,
-                either because of network latency, or a socket problem. Since we are
-                raison d'etre of this software it us sensible to just wait until we have something*/
-
+                either because of network latency, or a socket problem. */
             while (s_iGlobalJobNo.load(std::memory_order_relaxed) == m_iJobNo)
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
             consume_work();
             continue;
         }
-
+        // printer::inst()->print_msg(L3, "starter nonce: %u", *piNonce);
         if(m_oMinerWork.m_bNiceHash)
             result.m_iNonce = calc_nicehash_nonce(*piNonce, m_oMinerWork.m_iResumeCnt);
         else
             result.m_iNonce = calc_start_nonce(m_oMinerWork.m_iResumeCnt);
-
-        assert(sizeof(JobResult::sJobID) == sizeof(PoolJob::sJobID));
+        // stNonce = result.m_iNonce;
+        // copy the m_sJobId from "miner work" to "result" used for submit.
+        assert(sizeof(JobResult::m_sJobID) == sizeof(PoolJob::m_sJobID));
         memcpy(result.m_sJobID, m_oMinerWork.m_sJobID, sizeof(JobResult::m_sJobID));
-
+        //size_t iHashCalculated = 0;
         while(s_iGlobalJobNo.load(std::memory_order_relaxed) == m_iJobNo)
         {
-            if ((iCount & 0xF) == 0) //Store stats every 16 hashes
+            if ((iCount & 0xFF) == 0) //Store stats every 255 hashes
             {
                 using namespace std::chrono;
-                uint64_t iStamp = time_point_cast<milliseconds>(high_resolution_clock::now()).time_since_epoch().count();
+                iStamp = time_point_cast<milliseconds>(high_resolution_clock::now()).time_since_epoch().count();
                 m_iHashCount.store(iCount, std::memory_order_relaxed);
                 m_iTimestamp.store(iStamp, std::memory_order_relaxed);
             }
             iCount++;
 
             *piNonce = ++result.m_iNonce;
-
+            // Main hash function, time mainly consume here.
             hash_fun(m_oMinerWork.m_bWorkBlob, m_oMinerWork.m_iWorkSize, result.m_bResult, ctx);
-
-            if (*piHashVal < m_oMinerWork.m_iTarget)
+            //++iHashCalculated;
+            if (*piHash < m_oMinerWork.m_iTarget)
                 Executor::inst()->push_event(ex_event(result, m_oMinerWork.m_iPoolId));
 
-            // std::this_thread::yield(); // A hint to reschedule the execution of this thread, allow other threads to run.
+            std::this_thread::yield(); // A hint to reschedule the execution of this thread, allow other threads to run.
         }
-
+        // printer::inst()->print_msg(L3, "Thread:%u, stNonce:%u, edNonce:%u", this->m_iThreadNo, stNonce, *piNonce);
         consume_work();
     }
 
@@ -465,19 +470,18 @@ void MineThread::double_work_main()
     cryptonight_ctx* ctx0;
     cryptonight_ctx* ctx1;
     uint64_t iCount = 0;
-    uint64_t *piHashVal0, *piHashVal1;
+    uint64_t *piHash0, *piHash1;
     uint32_t *piNonce0, *piNonce1;
     uint8_t bDoubleHashOut[64];
     uint8_t bDoubleWorkBlob[sizeof(MinerWork::m_bWorkBlob) * 2];
     uint32_t iNonce;
-    JobResult res;
 
     hash_fun = func_dbl_selector(jconf::inst()->HaveHardwareAes(), m_bNoPrefetch);
     ctx0 = minethd_alloc_ctx();
     ctx1 = minethd_alloc_ctx();
 
-    piHashVal0 = (uint64_t*)(bDoubleHashOut + 24);
-    piHashVal1 = (uint64_t*)(bDoubleHashOut + 32 + 24);
+    piHash0 = (uint64_t*)(bDoubleHashOut + 24);
+    piHash1 = (uint64_t*)(bDoubleHashOut + 32 + 24);
     piNonce0 = (uint32_t*)(bDoubleWorkBlob + 39);
     piNonce1 = nullptr;
 
@@ -506,7 +510,7 @@ void MineThread::double_work_main()
         else
             iNonce = calc_start_nonce(m_oMinerWork.m_iResumeCnt);
 
-        assert(sizeof(JobResult::sJobID) == sizeof(PoolJob::sJobID));
+        assert(sizeof(JobResult::m_sJobID) == sizeof(PoolJob::m_sJobID));
 
         while (s_iGlobalJobNo.load(std::memory_order_relaxed) == m_iJobNo)
         {
@@ -525,13 +529,13 @@ void MineThread::double_work_main()
 
             hash_fun(bDoubleWorkBlob, m_oMinerWork.m_iWorkSize, bDoubleHashOut, ctx0, ctx1);
 
-            if (*piHashVal0 < m_oMinerWork.m_iTarget)
+            if (*piHash0 < m_oMinerWork.m_iTarget)
                 Executor::inst()->push_event(ex_event(JobResult(m_oMinerWork.m_sJobID, iNonce-1, bDoubleHashOut), m_oMinerWork.m_iPoolId));
 
-            if (*piHashVal1 < m_oMinerWork.m_iTarget)
+            if (*piHash1 < m_oMinerWork.m_iTarget)
                 Executor::inst()->push_event(ex_event(JobResult(m_oMinerWork.m_sJobID, iNonce, bDoubleHashOut + 32), m_oMinerWork.m_iPoolId));
 
-            // std::this_thread::yield();
+            std::this_thread::yield();
         }
 
         consume_work();

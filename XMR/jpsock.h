@@ -64,19 +64,19 @@ private:
     std::atomic<bool> m_bRunning;
     std::atomic<bool> m_bLoggedIn;
 
-    uint8_t* bJsonRecvMem;
-    uint8_t* bJsonParseMem;
-    uint8_t* bJsonCallMem;
+    uint8_t* m_bJsonRecvMem;
+    uint8_t* m_bJsonParseMem;
+    uint8_t* m_bJsonCallMem;
 
-    static constexpr size_t iJsonMemSize = 4096;
-    static constexpr size_t iSockBufferSize = 4096;
+    static constexpr size_t m_iJsonMemSize = 4096;
+    static constexpr size_t m_iSockBufferSize = 4096;
 
     struct call_rsp;
     struct OpaquePrivate;
     struct opq_json_val;
 
     void jpsock_thread();
-    bool jpsock_thd_main();
+    bool jpsock_thread_main();
     bool process_line(char* line, size_t len);
     bool process_pool_job(const opq_json_val* params);
     bool cmd_ret_wait(const char* sPacket, opq_json_val& poResult);
