@@ -1688,55 +1688,55 @@ static int Skein1024_InitExt(Skein1024_Ctxt_t *ctx,size_t hashBitLen,u64b_t tree
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 /* process the input bytes */
 static int Skein1024_Update(Skein1024_Ctxt_t *ctx, const u08b_t *msg, size_t msgByteCnt)
-    {
+{
     size_t n;
 
     Skein_Assert(ctx->h.bCnt <= SKEIN1024_BLOCK_BYTES,SKEIN_FAIL);    /* catch uninitialized context */
 
     /* process full blocks, if any */
     if (msgByteCnt + ctx->h.bCnt > SKEIN1024_BLOCK_BYTES)
-        {
+    {
         if (ctx->h.bCnt)                              /* finish up any buffered message data */
-            {
+        {
             n = SKEIN1024_BLOCK_BYTES - ctx->h.bCnt;  /* # bytes free in buffer b[] */
             if (n)
-                {
+            {
                 Skein_assert(n < msgByteCnt);         /* check on our logic here */
                 memcpy(&ctx->b[ctx->h.bCnt],msg,n);
                 msgByteCnt  -= n;
                 msg         += n;
                 ctx->h.bCnt += n;
-                }
+            }
             Skein_assert(ctx->h.bCnt == SKEIN1024_BLOCK_BYTES);
             Skein1024_Process_Block(ctx,ctx->b,1,SKEIN1024_BLOCK_BYTES);
             ctx->h.bCnt = 0;
-            }
+        }
         /* now process any remaining full blocks, directly from input message data */
         if (msgByteCnt > SKEIN1024_BLOCK_BYTES)
-            {
+        {
             n = (msgByteCnt-1) / SKEIN1024_BLOCK_BYTES;   /* number of full blocks to process */
             Skein1024_Process_Block(ctx,msg,n,SKEIN1024_BLOCK_BYTES);
             msgByteCnt -= n * SKEIN1024_BLOCK_BYTES;
             msg        += n * SKEIN1024_BLOCK_BYTES;
-            }
-        Skein_assert(ctx->h.bCnt == 0);
         }
+        Skein_assert(ctx->h.bCnt == 0);
+    }
 
     /* copy any remaining source message data bytes into b[] */
     if (msgByteCnt)
-        {
+    {
         Skein_assert(msgByteCnt + ctx->h.bCnt <= SKEIN1024_BLOCK_BYTES);
         memcpy(&ctx->b[ctx->h.bCnt],msg,msgByteCnt);
         ctx->h.bCnt += msgByteCnt;
-        }
+    }
 
     return SKEIN_SUCCESS;
-    }
+}
    
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 /* finalize the hash computation and output the result */
 static int Skein1024_Final(Skein1024_Ctxt_t *ctx, u08b_t *hashVal)
-    {
+{
     size_t i,n,byteCnt;
     u64b_t X[SKEIN1024_STATE_WORDS];
     Skein_Assert(ctx->h.bCnt <= SKEIN1024_BLOCK_BYTES,SKEIN_FAIL);    /* catch uninitialized context */
@@ -1753,8 +1753,8 @@ static int Skein1024_Final(Skein1024_Ctxt_t *ctx, u08b_t *hashVal)
     /* run Threefish in "counter mode" to generate output */
     memset(ctx->b,0,sizeof(ctx->b));  /* zero out b[], so it can hold the counter */
     memcpy(X,ctx->X,sizeof(X));       /* keep a local copy of counter mode "key" */
-    for (i=0;i*SKEIN1024_BLOCK_BYTES < byteCnt;i++)
-        {
+    for (i=0;i*SKEIN1024_BLOCK_BYTES < byteCnt;++i)
+    {
         ((u64b_t *)ctx->b)[0]= Skein_Swap64((u64b_t) i); /* build the counter block */
         Skein_Start_New_Type(ctx,OUT_FINAL);
         Skein1024_Process_Block(ctx,ctx->b,1,sizeof(u64b_t)); /* run "counter mode" */
@@ -1764,9 +1764,9 @@ static int Skein1024_Final(Skein1024_Ctxt_t *ctx, u08b_t *hashVal)
         Skein_Put64_LSB_First(hashVal+i*SKEIN1024_BLOCK_BYTES,ctx->X,n);   /* "output" the ctr mode bytes */
         Skein_Show_Final(1024,&ctx->h,n,hashVal+i*SKEIN1024_BLOCK_BYTES);
         memcpy(ctx->X,X,sizeof(X));   /* restore the counter mode key for next time */
-        }
-    return SKEIN_SUCCESS;
     }
+    return SKEIN_SUCCESS;
+}
 
 #if defined(SKEIN_CODE_SIZE) || defined(SKEIN_PERF)
 static size_t Skein1024_API_CodeSize(void)
@@ -1921,14 +1921,14 @@ static int Skein1024_Output(Skein1024_Ctxt_t *ctx, u08b_t *hashVal)
 
 typedef struct
 {
-  uint_t  statebits;                      /* 256, 512, or 1024 */
-  union
-  {
-    Skein_Ctxt_Hdr_t h;                 /* common header "overlay" */
-    Skein_256_Ctxt_t ctx_256;
-    Skein_512_Ctxt_t ctx_512;
-    Skein1024_Ctxt_t ctx1024;
-  } u;
+    uint_t  statebits;                      /* 256, 512, or 1024 */
+    union
+    {
+        Skein_Ctxt_Hdr_t h;                 /* common header "overlay" */
+        Skein_256_Ctxt_t ctx_256;
+        Skein_512_Ctxt_t ctx_512;
+        Skein1024_Ctxt_t ctx1024;
+    } u;
 }
 hashState;
 
@@ -1965,59 +1965,59 @@ static SkeinHashReturn Init(hashState *state, int hashbitlen)
 /* process data to be hashed */
 static SkeinHashReturn Update(hashState *state, const SkeinBitSequence *data, SkeinDataLength databitlen)
 {
-  /* only the final Update() call is allowed do partial bytes, else assert an error */
-  Skein_Assert((state->u.h.T[1] & SKEIN_T1_FLAG_BIT_PAD) == 0 || databitlen == 0, SKEIN_FAIL);
+    /* only the final Update() call is allowed do partial bytes, else assert an error */
+    Skein_Assert((state->u.h.T[1] & SKEIN_T1_FLAG_BIT_PAD) == 0 || databitlen == 0, SKEIN_FAIL);
 
-  Skein_Assert(state->statebits % 256 == 0 && (state->statebits-256) < 1024,SKEIN_FAIL);
-  if ((databitlen & 7) == 0)  /* partial bytes? */
-  {
-    switch ((state->statebits >> 8) & 3)
+    Skein_Assert(state->statebits % 256 == 0 && (state->statebits-256) < 1024,SKEIN_FAIL);
+    if ((databitlen & 7) == 0)  /* partial bytes? */
     {
-    case 2:  return Skein_512_Update(&state->u.ctx_512,data,databitlen >> 3);
-    case 1:  return Skein_256_Update(&state->u.ctx_256,data,databitlen >> 3);
-    case 0:  return Skein1024_Update(&state->u.ctx1024,data,databitlen >> 3);
-    default: return SKEIN_FAIL;
+        switch ((state->statebits >> 8) & 3)
+        {
+        case 2:  return Skein_512_Update(&state->u.ctx_512,data,databitlen >> 3);
+        case 1:  return Skein_256_Update(&state->u.ctx_256,data,databitlen >> 3);
+        case 0:  return Skein1024_Update(&state->u.ctx1024,data,databitlen >> 3);
+        default: return SKEIN_FAIL;
+        }
     }
-  }
-  else
-  {   /* handle partial final byte */
-    size_t bCnt = (databitlen >> 3) + 1;                  /* number of bytes to handle (nonzero here!) */
-    u08b_t b,mask;
+    else
+    {   /* handle partial final byte */
+        size_t bCnt = (databitlen >> 3) + 1;                  /* number of bytes to handle (nonzero here!) */
+        u08b_t b,mask;
 
-    mask = (u08b_t) (1u << (7 - (databitlen & 7)));       /* partial byte bit mask */
-    b    = (u08b_t) ((data[bCnt-1] & (0-mask)) | mask);   /* apply bit padding on final byte */
+        mask = (u08b_t) (1u << (7 - (databitlen & 7)));       /* partial byte bit mask */
+        b    = (u08b_t) ((data[bCnt-1] & (0-mask)) | mask);   /* apply bit padding on final byte */
 
-    switch ((state->statebits >> 8) & 3)
-    {
-    case 2:  Skein_512_Update(&state->u.ctx_512,data,bCnt-1); /* process all but the final byte    */
-      Skein_512_Update(&state->u.ctx_512,&b  ,  1   ); /* process the (masked) partial byte */
-      break;
-    case 1:  Skein_256_Update(&state->u.ctx_256,data,bCnt-1); /* process all but the final byte    */
-      Skein_256_Update(&state->u.ctx_256,&b  ,  1   ); /* process the (masked) partial byte */
-      break;
-    case 0:  Skein1024_Update(&state->u.ctx1024,data,bCnt-1); /* process all but the final byte    */
-      Skein1024_Update(&state->u.ctx1024,&b  ,  1   ); /* process the (masked) partial byte */
-      break;
-    default: return SKEIN_FAIL;
+        switch ((state->statebits >> 8) & 3)
+        {
+        case 2:  Skein_512_Update(&state->u.ctx_512,data,bCnt-1); /* process all but the final byte    */
+            Skein_512_Update(&state->u.ctx_512,&b  ,  1   ); /* process the (masked) partial byte */
+            break;
+        case 1:  Skein_256_Update(&state->u.ctx_256,data,bCnt-1); /* process all but the final byte    */
+            Skein_256_Update(&state->u.ctx_256,&b  ,  1   ); /* process the (masked) partial byte */
+            break;
+        case 0:  Skein1024_Update(&state->u.ctx1024,data,bCnt-1); /* process all but the final byte    */
+            Skein1024_Update(&state->u.ctx1024,&b  ,  1   ); /* process the (masked) partial byte */
+            break;
+        default: return SKEIN_FAIL;
+        }
+        Skein_Set_Bit_Pad_Flag(state->u.h);                    /* set tweak flag for the final call */
+
+        return SKEIN_SUCCESS;
     }
-    Skein_Set_Bit_Pad_Flag(state->u.h);                    /* set tweak flag for the final call */
-
-    return SKEIN_SUCCESS;
-  }
 }
 
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 /* finalize hash computation and output the result (hashbitlen bits) */
 static SkeinHashReturn Final(hashState *state, SkeinBitSequence *hashval)
 {
-  Skein_Assert(state->statebits % 256 == 0 && (state->statebits-256) < 1024,FAIL);
-  switch ((state->statebits >> 8) & 3)
-  {
-  case 2:  return Skein_512_Final(&state->u.ctx_512,hashval);
-  case 1:  return Skein_256_Final(&state->u.ctx_256,hashval);
-  case 0:  return Skein1024_Final(&state->u.ctx1024,hashval);
-  default: return SKEIN_FAIL;
-  }
+    Skein_Assert(state->statebits % 256 == 0 && (state->statebits-256) < 1024,FAIL);
+    switch ((state->statebits >> 8) & 3)
+    {
+    case 2:  return Skein_512_Final(&state->u.ctx_512,hashval);
+    case 1:  return Skein_256_Final(&state->u.ctx_256,hashval);
+    case 0:  return Skein1024_Final(&state->u.ctx1024,hashval);
+    default: return SKEIN_FAIL;
+    }
 }
 
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
@@ -2025,12 +2025,12 @@ static SkeinHashReturn Final(hashState *state, SkeinBitSequence *hashval)
 SkeinHashReturn skein_hash(int hashbitlen, const SkeinBitSequence *data, /* all-in-one call */
                 SkeinDataLength databitlen,SkeinBitSequence *hashval)
 {
-  hashState  state;
-  SkeinHashReturn r = Init(&state,hashbitlen);
-  if (r == SKEIN_SUCCESS)
-  { /* these calls do not fail when called properly */
-    r = Update(&state,data,databitlen);
-    Final(&state,hashval);
-  }
-  return r;
+    hashState  state;
+    SkeinHashReturn r = Init(&state,hashbitlen);
+    if (r == SKEIN_SUCCESS)
+    { /* these calls do not fail when called properly */
+        r = Update(&state,data,databitlen);
+        Final(&state,hashval);
+    }
+    return r;
 }

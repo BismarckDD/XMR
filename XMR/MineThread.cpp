@@ -390,7 +390,6 @@ void MineThread::work_main()
 
     piHash = (uint64_t*)(result.m_bResult + 24);
     piNonce = (uint32_t*)(m_oMinerWork.m_bWorkBlob + 39);
-    uint32_t stNonce;
     s_iConsumeCnt++;
 
     while (m_bQuit == 0)
