@@ -304,19 +304,14 @@ std::vector<MineThread*>* MineThread::thread_starter(MinerWork& pWork)
     m_pvThreads->reserve(n);
 
     jconf::thd_cfg cfg;
-    for (i = 0; i < n; i++)
+    for (i = 0; i < n; ++i)
     {
         jconf::inst()->GetThreadConfig(i, cfg);
 
         MineThread* thd = new MineThread(pWork, i, cfg.bDoubleMode, cfg.bNoPrefetch);
 
         if(cfg.iCpuAff >= 0)
-        {
-#if defined(__APPLE__)
-            printer::inst()->print_msg(L1, "WARNING on MacOS thread affinity is only advisory.");
-#endif
             thd_setaffinity(thd->m_oWorkThread.native_handle(), cfg.iCpuAff);
-        }
 
         m_pvThreads->push_back(thd);
 
@@ -357,23 +352,7 @@ void MineThread::consume_work()
 
 MineThread::cn_hash_fun MineThread::func_selector(bool bHaveAes, bool bNoPrefetch)
 {
-    // We have two independent flag bits in the functions
-    // therefore we will build a binary digit and select the
-    // function as a two digit binary
-    // Digit order SOFT_AES, NO_PREFETCH
-
-    static const cn_hash_fun func_table[4] = {
-        cryptonight_hash<0x80000, MEMORY, false, false>,
-        cryptonight_hash<0x80000, MEMORY, false, true>,
-        cryptonight_hash<0x80000, MEMORY, true, false>,
-        cryptonight_hash<0x80000, MEMORY, true, true>
-    };
-
-    std::bitset<2> digit;
-    digit.set(0, !bNoPrefetch);
-    digit.set(1, !bHaveAes);
-
-    return func_table[digit.to_ulong()];
+    return cryptonight_hash;
 }
 
 void MineThread::work_main()
@@ -385,12 +364,11 @@ void MineThread::work_main()
     uint32_t* piNonce;
     JobResult result;
 
-    hash_fun = func_selector(jconf::inst()->HaveHardwareAes(), m_bNoPrefetch);
+    hash_fun = cryptonight_hash;
     ctx = minethd_alloc_ctx();
 
     piHash = (uint64_t*)(result.m_bResult + 24);
     piNonce = (uint32_t*)(m_oMinerWork.m_bWorkBlob + 39);
-    uint32_t stNonce;
     s_iConsumeCnt++;
 
     while (m_bQuit == 0)
@@ -444,24 +422,7 @@ void MineThread::work_main()
 
 MineThread::cn_hash_fun_dbl MineThread::func_dbl_selector(bool p_bHaveAes, bool p_bNoPrefetch)
 {
-    // We have two independent flag bits in the functions
-    // therefore we will build a binary digit and select the
-    // function as a two digit binary
-    // Digit order SOFT_AES, NO_PREFETCH
-
-    static const cn_hash_fun_dbl func_table[4] =
-    {
-        cryptonight_double_hash<0x80000, MEMORY, false, false>,
-        cryptonight_double_hash<0x80000, MEMORY, false, true>,
-        cryptonight_double_hash<0x80000, MEMORY, true, false>,
-        cryptonight_double_hash<0x80000, MEMORY, true, true>
-    };
-
-    std::bitset<2> digit;
-    digit.set(0, !p_bNoPrefetch);
-    digit.set(1, !p_bHaveAes);
-
-    return func_table[digit.to_ulong()];
+    return cryptonight_double_hash;
 }
 
 void MineThread::double_work_main()

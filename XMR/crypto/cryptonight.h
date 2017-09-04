@@ -2,13 +2,16 @@
 #define __CRYPTONIGHT_H_INCLUDED
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include <stddef.h>
 #include <inttypes.h>
 
-#define MEMORY  2097152
+#define MEMORY 2097152
+#define ITERATIONS 0x80000
+#define ITER 131072
 
 typedef struct {
     uint8_t hash_state[224]; // Need only 200, explicit align

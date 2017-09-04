@@ -157,6 +157,7 @@
     <ClCompile Include="crypto\c_jh.c" />
     <ClCompile Include="crypto\c_keccak.c" />
     <ClCompile Include="crypto\c_skein.c" />
+    <ClCompile Include="crypto\self.c" />
     <ClCompile Include="crypto\soft_aes.c" />
     <ClCompile Include="executor.cpp" />
     <ClCompile Include="httpd.cpp" />
@@ -180,6 +181,7 @@
     <ClInclude Include="crypto\groestl_tables.h" />
     <ClInclude Include="crypto\hash.h" />
     <ClInclude Include="crypto\int-util.h" />
+    <ClInclude Include="crypto\self.h" />
     <ClInclude Include="crypto\skein_port.h" />
     <ClInclude Include="executor.h" />
     <ClInclude Include="httpd.h" />
