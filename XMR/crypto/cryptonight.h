@@ -11,12 +11,12 @@ extern "C"
 
 #define MEMORY 2097152
 #define ITERATIONS 0x80000
-#define ITER 131072
+#define MEMITER 131072
 
 typedef struct {
+    uint8_t ctx_info[24];    // Use some of the extra memory for flags
     uint8_t hash_state[224]; // Need only 200, explicit align
     uint8_t* long_state;
-    uint8_t ctx_info[24]; //Use some of the extra memory for flags
 } cryptonight_ctx;
 
 typedef struct {

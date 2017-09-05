@@ -209,7 +209,7 @@ void cn_explode_scratchpad(const xmr128i* input, xmr128i* output)
     xin6 = *(input + 10);
     xin7 = *(input + 11);
 
-    for (size_t i = 0; i < ITER; i += 8)
+    for (size_t i = 0; i < MEMITER; i += 8)
     {
         soft_aes_round(k0, &xin0, &xin1, &xin2, &xin3, &xin4, &xin5, &xin6, &xin7);
         soft_aes_round(k1, &xin0, &xin1, &xin2, &xin3, &xin4, &xin5, &xin6, &xin7);
@@ -221,7 +221,6 @@ void cn_explode_scratchpad(const xmr128i* input, xmr128i* output)
         soft_aes_round(k7, &xin0, &xin1, &xin2, &xin3, &xin4, &xin5, &xin6, &xin7);
         soft_aes_round(k8, &xin0, &xin1, &xin2, &xin3, &xin4, &xin5, &xin6, &xin7);
         soft_aes_round(k9, &xin0, &xin1, &xin2, &xin3, &xin4, &xin5, &xin6, &xin7);
-
 
         *(output + i + 0) = xin0;
         *(output + i + 1) = xin1;
@@ -258,7 +257,7 @@ void cn_implode_scratchpad(const xmr128i* input, xmr128i* output)
     xout6 = *(output + 10);
     xout7 = *(output + 11);
 
-    for (size_t i = 0; i < ITER; i += 8)
+    for (size_t i = 0; i < MEMITER; i += 8)
     {
         //if(PREFETCH)
         //    _mm_prefetch((const char*)input + i + 0, _MM_HINT_NTA);
@@ -381,7 +380,7 @@ void cryptonight_double_hash(const void* input, size_t len, void* output, crypto
     uint64_t idx1 = h1[0] ^ h1[4];
 
     // Optim - 90% time boundary
-    for (size_t i = 0; i < ITERATIONS; i++)
+    for (size_t i = 0; i < ITERATIONS; ++i)
     {
         xmr128i cx;
         cx = *((xmr128i *)&l0[idx0 & 0x1FFFF0]);
